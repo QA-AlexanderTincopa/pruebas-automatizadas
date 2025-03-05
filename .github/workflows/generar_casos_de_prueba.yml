@@ -1,0 +1,37 @@
+name: Generar Excel desde TSV
+
+on:
+  push:
+    paths:
+      - 'casos_de_prueba/casos_prueba.tsv'
+
+jobs:
+  convertir_a_excel:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Instalar librerías necesarias
+        run: |
+          pip install pandas openpyxl
+
+      - name: Convertir TSV a Excel
+        run: |
+          python -c "
+          import pandas as pd
+          df = pd.read_csv('casos_de_prueba/casos_prueba.tsv', sep='\t')
+          df.to_excel('casos_de_prueba/Casos_de_Prueba.xlsx', index=False)
+          "
+
+      - name: Commit automático del Excel generado
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Auto: generar Excel desde TSV'
+          file_pattern: 'casos_de_prueba/Casos_de_Prueba.xlsx'
